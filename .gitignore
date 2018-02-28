@@ -1,0 +1,6 @@
+# Sublime
+*.sublime-project
+*.sublime-workspace
+
+# Windows thumbnail cache files
+Thumbs.db

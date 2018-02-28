@@ -180,7 +180,7 @@
                 var loader = new THREE.FBXLoader();
                 loader.load( 'models/fbx/lengi_full.fbx', function ( object ) {
 
-                    console.log( "object: ",  object )
+                    console.log( "object: ",  object );
                     object.mixer = new THREE.AnimationMixer( object );
                     mixers.push( object.mixer );
                     try {
@@ -188,7 +188,7 @@
                         action.play();                        
                     } 
                     catch(err) {
-                        console.warn("No animation\n" + err)
+                        console.warn("No animation\n" + err);
                     }
 
                     object.traverse( function ( child ) {
@@ -242,7 +242,7 @@
                         }
 
                     } );
-                    console.log("Scale object")
+                    console.log("Scale object by 8")
                     object.scale.set(8, 8, 8)
                     scene.add( object );
 
