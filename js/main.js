@@ -7,11 +7,37 @@ var clock = new THREE.Clock();
 
 var mixers = [];
 var manager = null;
+
+var obj = {};
+var smooth;
 var loadedFbx;
-var wireframeToggle = false;
 
 init();
 animate();
+
+
+window.onload = function() {
+    obj.divisions = 0;
+    obj.wireframe = false;
+    
+    var gui = new dat.GUI({name: 'My GUI'});
+    
+    gui.add(obj, 'divisions', [0, 1, 2]).listen().onChange(function(divisions) {
+       
+        if ( smooth ) {
+          scene.remove( smooth );
+        }
+        addObject(loadedFbx , divisions);
+        if (obj.wireframe) {
+            toggleWireframe(obj.wireframe);
+        }
+    });
+    gui.add(obj, 'wireframe').onChange(function(toggle) {
+        var wireframeToggle = toggle;
+        toggleWireframe(wireframeToggle)
+    });
+}
+
 
 function init() {
 
@@ -59,36 +85,9 @@ function init() {
     var loader = new THREE.FBXLoader();
     loader.load( 'models/fbx/lengi_full.fbx', function ( object ) {
 
-        console.log( "object: ",  object )
-        object.mixer = new THREE.AnimationMixer( object );
-        mixers.push( object.mixer );
-        try {
-            var action = object.mixer.clipAction( object.animations[ 0 ] );
-            action.play();                        
-        } 
-        catch(err) {
-            console.warn("No animation\n" + err);
-        }
-        object.traverse( function ( child ) {
-
-            if ( child.isMesh ) {
-
-                child.castShadow = true;
-                var tempGeo = new THREE.Geometry().fromBufferGeometry( child.geometry );
-                tempGeo.mergeVertices();
-
-                var modifier = new THREE.SubdivisionModifier(3);
-                modifier.modify (tempGeo);
-
-                tempGeo.computeFaceNormals();
-                tempGeo.computeVertexNormals();
-                child.geometry = new THREE.BufferGeometry().fromGeometry( tempGeo );                       
-            }
-
-        } );
-        console.log("Scale object")
         loadedFbx = object;
-        scene.add( object );
+        smooth = object;
+        addObject(object, 0)
 
     });
 
@@ -106,27 +105,64 @@ function init() {
 
 }
 
+function addObject(object, divisions) {
+    // object.mixer = new THREE.AnimationMixer( object );
+    // mixers.push( object.mixer );
+    // try {
+    //     var action = object.mixer.clipAction( object.animations[ 0 ] );
+    //     action.play();                        
+    // } 
+    // catch(err) {
+    //     console.warn("No animation\n" + err);
+    // }
 
-function toggleWireframe() {
+    console.log(object)
+    smooth = object.clone();
+    smooth.traverse( function ( child ) {
+
+        if ( child.isMesh ) {
+
+            child.castShadow = true;
+            var tempGeo = new THREE.Geometry().fromBufferGeometry( child.geometry );
+            tempGeo.mergeVertices();
+
+            var modifier = new THREE.SubdivisionModifier(divisions);
+            modifier.modify (tempGeo);
+
+            tempGeo.computeFaceNormals();
+            tempGeo.computeVertexNormals();
+            child.geometry = new THREE.BufferGeometry().fromGeometry( tempGeo );   
+            // try {
+            // var modifier = new THREE.BufferSubdivisionModifier(divisions);
+            // modifier.modify (child.geometry);
+            // } catch(error) {
+            //     console.log(error)
+            // }
+
+        }
+
+    } );
+    scene.add( smooth );
+}
+
+
+function toggleWireframe(wireframeToggle) {
     // model
-    if (loadedFbx) {
-        if (!wireframeToggle) {
-            loadedFbx.traverse( function ( child ) {
+    if (smooth) {
+        if (wireframeToggle) {
+            smooth.traverse( function ( child ) {
                 if (child.isMesh) {
 
                     var geo = new THREE.WireframeGeometry( child.geometry );
                     var mat = new THREE.LineBasicMaterial( { color: 0xffffff, linewidth: 2 } );
                     var wireframe = new THREE.LineSegments( geo, mat );
                     child.add ( wireframe );
-                    // child.material.wireframe = true
-                    // console.log(child.children)
-                    // console.log(child.children.array)
 
                 }
             });
             console.log("Wireframe On")
         } else {
-            loadedFbx.traverse( function ( child ) {
+            smooth.traverse( function ( child ) {
                 if ( child.type == "LineSegments" ) {
                     
                     child.parent.remove( child );
@@ -135,8 +171,6 @@ function toggleWireframe() {
             });
             console.log("Wireframe Off")
         }
-        wireframeToggle = !wireframeToggle;
-        // scene.add(loadedFbx)
     } else {
         console.error("No Fbx loaded")
     }

@@ -25097,7 +25097,7 @@
 
                 position = geometry.attributes.position;
 
-                console.log("Wireframe Debug", position)
+                //console.log("Wireframe Debug", position)
                 var _i = 0;
                 for ( i = 0, l = ( position.count / 3 ); i < l; i ++ ) {
 
@@ -25106,19 +25106,19 @@
                         // three edges per triangle, an edge is represented as (index1, index2)
                         // e.g. the first triangle has the following edges: (0,1),(1,2),(2,0)
 
-                        // Added a simple check here to only push the vertices that are not diagonal lines
-                        if(!(j == 2 && _i == 1) && !(j == 2 && _i == 0)){
+                        // Added a simple check here to only push the edge that are not diagonal lines
+                        // if(!(j == 2 && _i == 1) && !(j == 2 && _i == 0)){
                             index1 = 3 * i + j;
                             vertex.fromBufferAttribute(position, index1);
-                            // console.log("i ", i, " _i ", _i, " j ", j)
-                            // console.log("index1", index1, "vertices", vertex)
+                            console.log("i ", i, " _i ", _i, " j ", j)
+                            console.log("index1", index1, "vertices", vertex)
                             vertices.push(vertex.x, vertex.y, vertex.z);
 
                             index2 = 3 * i + ( ( j + 1 ) % 3 );
                             vertex.fromBufferAttribute(position, index2);
-                            // console.log("index2", index1, "vertices", vertex)
+                            console.log("index2", index1, "vertices", vertex)
                             vertices.push(vertex.x, vertex.y, vertex.z);
-                        }
+                        // }
                     }
 
                     _i++;
