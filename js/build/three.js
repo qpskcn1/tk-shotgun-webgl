@@ -25096,35 +25096,33 @@
                 // non-indexed BufferGeometry
 
                 position = geometry.attributes.position;
-
-                //console.log("Wireframe Debug", position)
-                var _i = 0;
                 for ( i = 0, l = ( position.count / 3 ); i < l; i ++ ) {
-
+                    
                     for ( j = 0; j < 3; j ++ ) {
 
                         // three edges per triangle, an edge is represented as (index1, index2)
                         // e.g. the first triangle has the following edges: (0,1),(1,2),(2,0)
 
                         // Added a simple check here to only push the edge that are not diagonal lines
-                        // if(!(j == 2 && _i == 1) && !(j == 2 && _i == 0)){
+                        if ( !( i % 2 == 0 && j == 2 ) && !( i % 2 == 1 && j ==0 ) ) {
+                            // if ( !( i == 1 && j == 2 ) ) {
                             index1 = 3 * i + j;
                             vertex.fromBufferAttribute(position, index1);
-                            console.log("i ", i, " _i ", _i, " j ", j)
-                            console.log("index1", index1, "vertices", vertex)
+                            // console.log("i ", i, " _i ", _i, " j ", j)
+                            //console.log("index1", index1, "vertices", vertex)
+                            // var prev = {x:vertex.x, y:vertex.y, z:vertex.z}
                             vertices.push(vertex.x, vertex.y, vertex.z);
 
                             index2 = 3 * i + ( ( j + 1 ) % 3 );
                             vertex.fromBufferAttribute(position, index2);
-                            console.log("index2", index1, "vertices", vertex)
+                            //console.log("index2", index2, "vertices", vertex)
+                            // console.log(prev, vertex, " i="+i, " j="+j)
                             vertices.push(vertex.x, vertex.y, vertex.z);
-                        // }
+                            // }
+                        }
+                        //console.log(vertices)
                     }
-
-                    _i++;
-                    if(_i == 2) {
-                        _i = 0;
-                    }
+                    // console.log("")
                 }
 
             }

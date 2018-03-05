@@ -1,3 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - OBJLoader + MTLLoader</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				font-family: Monospace;
+				background-color: #000;
+				color: #fff;
+				margin: 0px;
+				overflow: hidden;
+			}
+			#info {
+				color: #fff;
+				position: absolute;
+				top: 10px;
+				width: 100%;
+				text-align: center;
+				z-index: 100;
+				display:block;
+			}
+			#info a, .button { color: #f00; font-weight: bold; text-decoration: underline; cursor: pointer }
+		</style>
+	</head>
+
+	<body>
+		<div id="info">
+		<a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> - OBJLoader + MTLLoader
+		</div>
+
+		<script src="js/build/three.min.js"></script>
+
+		<script src="js/loaders/DDSLoader.js"></script>
+		<script src="js/loaders/MTLLoader.js"></script>
+		<script src="js/loaders/OBJLoader.js"></script>
+
+        <script src="js/libs/inflate.min.js"></script>
+        <script src="js/loaders/FBXLoader.js"></script>
+        <script src="js/modifiers/BufferSubdivisionModifier.js"></script>
+        <script src="js/modifiers/SubdivisionModifier.js"></script>
+
+        <script src="js/controls/OrbitControls.js"></script>
+
+        <script src="js/Detector.js"></script>
+        <script src="js/libs/stats.min.js"></script>
+
+        <script src="js/build/dat.gui.min.js"></script>
+
+		<script>
+
 if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
 var container, stats, controls;
@@ -81,14 +133,22 @@ function init() {
     grid.material.transparent = true;
     scene.add( grid );
 
-    // model
-    var loader = new THREE.FBXLoader();
-    loader.load( 'models/fbx/lengi_full.fbx', function ( object ) {
+    var mtlLoader = new THREE.MTLLoader();
+    mtlLoader.setPath( 'models/fbx/' );
+    mtlLoader.load( 'lengi.mtl', function( materials ) {
 
-        loadedFbx = object;
-        smooth = object;
-        addObject(object, 0)
+        materials.preload();
 
+        // model
+        var loader = new THREE.OBJLoader();
+        loader.setMaterials( materials );
+        loader.load( 'models/fbx/lengi.obj', function ( object ) {
+
+            loadedFbx = object;
+            smooth = object;
+            addObject(object, 0)
+
+        });
     });
 
     renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -138,10 +198,6 @@ function addObject(object, divisions) {
             // } catch(error) {
             //     console.log(error)
             // }
-            child.material.polygonOffset = true;
-            child.material.polygonOffsetFactor = 1;
-            child.material.polygonOffsetUnits = 1;
-            // console.log(child.material)
 
         }
 
@@ -158,7 +214,7 @@ function toggleWireframe(wireframeToggle) {
                 if (child.isMesh) {
 
                     var geo = new THREE.WireframeGeometry( child.geometry );
-                    var mat = new THREE.LineBasicMaterial( { color: 0xffffff, linewidth: 15 } );
+                    var mat = new THREE.LineBasicMaterial( { color: 0xffffff, linewidth: 2 } );
                     var wireframe = new THREE.LineSegments( geo, mat );
                     child.add ( wireframe );
 
@@ -210,3 +266,9 @@ function animate() {
     stats.update();
 
 }
+
+
+		</script>
+
+	</body>
+</html>
