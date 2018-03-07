@@ -1,3 +1,8 @@
+function get(name){
+   if(name=(new RegExp('[?&]'+encodeURIComponent(name)+'=([^&]*)')).exec(location.search))
+      return decodeURIComponent(name[1]);
+}
+
 if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
 var container, stats, controls;
@@ -14,7 +19,6 @@ var loadedFbx;
 
 init();
 animate();
-
 
 window.onload = function() {
     obj.divisions = 0;
@@ -83,7 +87,8 @@ function init() {
 
     // model
     var loader = new THREE.FBXLoader();
-    loader.load( 'models/fbx/lengi_full.fbx', function ( object ) {
+    var path = getParameterByName('file');
+    loader.load( path, function ( object ) {
 
         loadedFbx = object;
         smooth = object;
@@ -116,7 +121,6 @@ function addObject(object, divisions) {
     //     console.warn("No animation\n" + err);
     // }
 
-    console.log(object)
     smooth = object.clone();
     smooth.traverse( function ( child ) {
 
@@ -158,7 +162,7 @@ function toggleWireframe(wireframeToggle) {
                 if (child.isMesh) {
 
                     var geo = new THREE.WireframeGeometry( child.geometry );
-                    var mat = new THREE.LineBasicMaterial( { color: 0xffffff, linewidth: 15 } );
+                    var mat = new THREE.LineBasicMaterial( { color: 0xffffff, linewidth: 1 } );
                     var wireframe = new THREE.LineSegments( geo, mat );
                     child.add ( wireframe );
 
@@ -210,3 +214,22 @@ function animate() {
     stats.update();
 
 }
+
+
+function getParameterByName(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
+
+
+window.onbeforeunload = function () {
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST","/kill_server",false);
+    xhr.setRequestHeader("content-type","application/x-www-form-urlencoded");
+    xhr.send("Kill Server");
+};

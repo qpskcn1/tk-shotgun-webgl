@@ -4,3 +4,12 @@
 
 # Windows thumbnail cache files
 Thumbs.db
+
+# test files
+test.py
+models
+webgl*
+
+
+*.pyc
+
