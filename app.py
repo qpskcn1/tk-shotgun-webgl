@@ -8,11 +8,12 @@ import sgtk
 import tank
 
 import webbrowser
-from server import TempServer
 
 BASE_PATH = os.path.dirname(__file__)
-PORT = 8000
 sys.path.append(BASE_PATH)
+from server import TempServer
+
+PORT = 8000
 
 
 class WebGLReview(Application):
@@ -22,18 +23,21 @@ class WebGLReview(Application):
         App entry point
         """
         # make sure that the context has an entity associated - otherwise it wont work!
-        if self.context.entity is None:
-            raise tank.TankError("Your current context does not have an entity (e.g. "
-                                 "a current Shot, current Asset etc). This app requires "
-                                 "an entity as part of the context in order to work.")
-        display_name = self.get_setting('display_name') or 'Review in WebGL'
-        self.engine.register_command('Review in WebGL', self.run_app,
-                                     {
-                                         'short_name': 'tk-shotgun-webgl',
-                                         'title': display_name,
-                                         'supports_multiple_selection': False,
-                                         "entity_types": ["Version"]
-                                     })
+        try:
+            if self.context.entity is None:
+                raise tank.TankError("Your current context does not have an entity (e.g. "
+                                     "a current Shot, current Asset etc). This app requires "
+                                     "an entity as part of the context in order to work.")
+            display_name = self.get_setting('display_name') or 'Review in WebGL'
+            self.engine.register_command('Review in WebGL', self.run_app,
+                                         {
+                                             'short_name': 'tk-shotgun-webgl',
+                                             'title': display_name,
+                                             'supports_multiple_selection': False,
+                                             "entity_types": ["Version"]
+                                         })
+        except Exception as e:
+            self.log_error(e)
 
     @property
     def context_change_allowed(self):
