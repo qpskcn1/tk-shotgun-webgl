@@ -2,16 +2,17 @@
 # -*- coding: UTF-8 -*-
 import sys
 import os
-import traceback
 
 from tank.platform import Application
 import sgtk
+import tank
 
 import webbrowser
+from server import TempServer
 
 BASE_PATH = os.path.dirname(__file__)
+PORT = 8000
 sys.path.append(BASE_PATH)
-from server import TempServer
 
 
 class WebGLReview(Application):
@@ -48,9 +49,9 @@ class WebGLReview(Application):
         self.log_debug("Destroying tk-shotgun-webgl")
         try:
             sgtk.util.filesystem.safe_delete_file(self.tmp_file_path)
+            self.temp_server.shut_down()
         except Exception as e:
             self.log_warning(e)
-
 
     def run_app(self):
         """
@@ -62,9 +63,12 @@ class WebGLReview(Application):
             filters = [['id', 'is', self.version_id]]
             fields = ['code', 'sg_uploaded_movie', 'sg_path_to_movie']
             version = self.shotgun.find_one('Version', filters, fields)
-            self.tmp_file_path = os.path.join(BASE_PATH, "tmp", version["sg_uploaded_movie"]["name"])
-            self.shotgun.download_attachment(version["sg_uploaded_movie"], 
+            self.tmp_file_path = os.path.join(BASE_PATH, "tmp",
+                                              version["sg_uploaded_movie"]["name"])
+            self.shotgun.download_attachment(version["sg_uploaded_movie"],
                                              file_path=self.tmp_file_path)
-            temp_server = TempServer(self, 8000)
-            temp_server.start()
-            webbrowser.open("http://localhost:8000?file=tmp/%s" % version["sg_uploaded_movie"]["name"])
+            self.temp_server = TempServer(self, PORT)
+            self.temp_server.start()
+            webbrowser.open("http://localhost:%s?file=tmp/%s" % (
+                            PORT,
+                            version["sg_uploaded_movie"]["name"]))

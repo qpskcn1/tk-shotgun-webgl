@@ -19,7 +19,7 @@ class MyHandler(SimpleHTTPRequestHandler):
         return fullpath
 
 class TempServer(object):
-    def __init__(self, app, port = 8000):
+    def __init__(self, app, port=8000):
         self._app = app
         self._server = SocketServer.TCPServer(('', port), MyHandler)
         self._thread = threading.Thread(target=self.run)
