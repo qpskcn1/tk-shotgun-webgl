@@ -67,12 +67,20 @@ class WebGLReview(Application):
             filters = [['id', 'is', self.version_id]]
             fields = ['code', 'sg_uploaded_movie', 'sg_path_to_movie']
             version = self.shotgun.find_one('Version', filters, fields)
-            self.tmp_file_path = os.path.join(BASE_PATH, "tmp",
-                                              version["sg_uploaded_movie"]["name"])
-            self.shotgun.download_attachment(version["sg_uploaded_movie"],
-                                             file_path=self.tmp_file_path)
+            # self.tmp_file_path = os.path.join(BASE_PATH, "tmp",
+            #                                   version["sg_uploaded_movie"]["name"])
+            # self.shotgun.download_attachment(version["sg_uploaded_movie"],
+            #                                  file_path=self.tmp_file_path)
+            src_file_path = version["sg_path_to_movie"]
+            file_name = os.path.basename(src_file_path)
+            self.tmp_file_path = os.path.join(BASE_PATH, "tmp", file_name)
+            sgtk.util.filesystem.copy_file(src_file_path, self.tmp_file_path)
             self.temp_server = TempServer(self, PORT)
             self.temp_server.start()
+            # webbrowser.open("http://localhost:%s?file=tmp/%s" % (
+            #                 PORT,
+            #                 version["sg_uploaded_movie"]["name"]))
+            file_name = os.path.basename(version["sg_path_to_movie"])
             webbrowser.open("http://localhost:%s?file=tmp/%s" % (
                             PORT,
-                            version["sg_uploaded_movie"]["name"]))
+                            file_name))
