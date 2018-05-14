@@ -1,0 +1,4 @@
+The placeholder file is needed when managing toolkit configurations
+in source control packages such as git and perforce. These systems
+do not handle empty folders so a placeholder file is required for the
+folder to be tracked and managed properly.
